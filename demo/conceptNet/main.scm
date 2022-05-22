@@ -19,8 +19,8 @@
 (##include "~~lib/_six/six-expand#.scm")
 (##include "~~lib/_six/js#.scm")
 
-(##include "reactive#.scm")
-(##include "reactive-html#.scm")
+(##include "../../lib/reactive#.scm")
+(##include "../../lib/reactive-html#.scm")
 
 (##declare (extended-bindings) (standard-bindings) (block))
 
