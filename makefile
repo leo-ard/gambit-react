@@ -2,7 +2,7 @@
 
 # Copyright (c) 2020-2021 by Marc Feeley, All Rights Reserved.
 
-GAMBITDIR="/home/leonard/gambit/source/latest"
+# GAMBITDIR="/home/leonard/gambit/source/latest"
 GSC = $(GAMBITDIR)/gsc/gsc -:~~bin=$(srcdirpfx)$(GAMBITDIR)/bin,~~lib=$(srcdirpfx)$(GAMBITDIR)/lib,~~include=$(srcdirpfx)$(GAMBITDIR)/include
 
 # GSC=gsc
