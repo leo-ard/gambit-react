@@ -131,4 +131,4 @@ Here, we can see that we have a button, containing the text `"Number of clicks :
 This version now works! We can see that we have a button that updates the number of clicks accordingly. We also see that we have a very "declarative" way of expressing our interface. 
 
 ### See more
-If you want to see more, you can go to the [demos](../lib/demo) and check them out!
+If you want to see more, you can go to the [demos](../demo) and check them out !
