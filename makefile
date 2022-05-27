@@ -15,9 +15,16 @@ GSC = $(GAMBITDIR)/gsc/gsc -:~~bin=$(srcdirpfx)$(GAMBITDIR)/bin,~~lib=$(srcdirpf
 lib/VM.js: lib/*
 	cd lib && $(MAKE) GSC='$(GSC)'
 
-demo-conceptNet: lib/VM.js demo/conceptNet/*
-	cd demo/conceptNet && $(MAKE) GSC='$(GSC)' VM='$(PWD)/lib/VM.js'
-	cd demo/conceptNet && python2 $(PWD)/misc/https-server.py $(PWD)/misc/https-server-certificate.pem
+demo/%: lib/VM.js demo/%/* .PHONY
+	cd $@ && $(MAKE) GSC='$(GSC)' VM='$(PWD)/lib/VM.js'
+	cd $@ && python2 $(PWD)/misc/https-server.py $(PWD)/misc/https-server-certificate.pem
+ 
+.PHONY: ;
+
+# demo-reactiveButton: lib/VM.js demo/reactiveButton/*
+	# cd demo/reactiveButton && $(MAKE) GSC='$(GSC)' VM='$(PWD)/lib/VM.js'
+	# cd demo/reactiveButton && python2 $(PWD)/misc/https-server.py $(PWD)/misc/https-server-certificate.pem
+
 
 .venv:
 	@echo "generating virtualenv in .venv for update-server"
@@ -30,6 +37,6 @@ demo-conceptNet: lib/VM.js demo/conceptNet/*
 clean:
 	cd lib && $(MAKE) clean
 	for i in demo/*; do \
-	   cd $$i && $(MAKE) clean; \
+	   cd $(PWD)/$$i && $(MAKE) clean; \
 	done
 

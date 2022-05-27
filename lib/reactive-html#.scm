@@ -267,6 +267,4 @@
 
   ;; web component
   <slot>
-  <template>
-
-  )
+  <template>)

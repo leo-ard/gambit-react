@@ -134,6 +134,5 @@
 
   reactive-block-thunk-set!
   reactive-block-activate-set!
-  reactive-block-bindings-set!
-  ))
+  reactive-block-bindings-set!))
 

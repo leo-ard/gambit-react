@@ -18,53 +18,22 @@
 (##include "~~lib/_six/six-expand#.scm")
 (##include "~~lib/_six/js#.scm")
 
-(##include "reactive#.scm")
-(##include "reactive-html#.scm")
+(##include "../../lib/reactive#.scm")
+(##include "../../lib/reactive-html#.scm")
 
 (##declare (extended-bindings) (standard-bindings) (block))
-
 ;; app.scm
 
 
-(define (demo5)
-  (define counter (reactive-var 0))
-
-  (<div>
-   (<button>
-    on:click: (lambda (e) (reactive-set! counter (+ 1 (reactive-ref counter))))
-    "The count is at " counter)
-
-   ;; reactive properties
-   (<div> id: counter)
-   (<div> id: (reactive (reactive-ref counter)))
-   (<div>
-    (<div> id: counter)
-    (<div> id: (reactive (reactive-ref counter))))
-
-  (reactive
-   (<div> id: (reactive-ref counter))
-   (<div>
-    (<div> id: (reactive-ref counter)))
-   (if (fx= 0 (modulo (reactive-ref counter) 2))
-       (<p> id: (reactive-ref counter) "The count is even")
-       (<p> id: (reactive-ref counter) "the count is odd")
-       )
-
-   )
-  ))
-
-
 (createApp
+ debug: #t
  (<p> "Ce fichier contient les démos de svelte, mais implémenté dans gambit-react ! "
       (<br>)
       (<a> href: "https://svelte.dev/examples#reactive-assignments" "Lien vers les démos sveltes")
       (<br>)
-      (<a> href: "./extra.scm"
+      (<a> href: "./main.scm"
            "Lien vers le ficher .scm qui a généré cette page"
-           target: "_blank")
-      (<h3>
-       "Actuellement, il y a " reactive-block-counter " blocks et " reactive-var-counter " variables actives")
-      )
+           target: "_blank"))
 
  ;; demo 1
  (let* ((count (reactive-var 0))
@@ -123,16 +92,8 @@
     (<input>
      id: "input"
      on:input: onchange
-     value: (reactive-ref name))
-    (<p> "Your name is: " (reactive (reactive-ref name)))
-
-    (<h2> "other tests")
-    (reactive
-     (if (equal? "leonard" (reactive-ref name))
-         (<p> name " est egal a leonard")
-         (<p> name " n'est pas egal a leonard")))))
- (demo5)
-
- )
+     value: (reactive-ref name)
+             )
+    (<p> "Your name is: " (reactive (reactive-ref name))))))
 
 (listen-events)

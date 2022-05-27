@@ -138,9 +138,7 @@
                     style: "position:fixed; top:0; right:0; background-color: #ffff005e; color: #000000a6;"
                     (<p>
                      "Reactive block: " reactive-block-counter (<br>)
-                     "Reactive variables: " reactive-var-counter
-                    )
-                    )
+                     "Reactive variables: " reactive-var-counter))
 
                    (table-ref args body: default-html))))
 
