@@ -2,19 +2,19 @@
 
 **NOTE : The name will change shortly from GambitReact to something more *flashy !***
 
-**WARNING: This doc is under development. Everything can change at any time without warning**
+**WARNING: This doc is under development. Anything can change at any time without warning**
 
 ##  What is GambitReact
-Gambit react is **reactive web app framework** for **gambit scheme**, a bit like React, Angular, Next.js, and other frameworks. It provides an intuitive abstraction to manipulate reactive variables. On top of this, it includes an easy way to insert those variables inside html elements. This empowers you to write web pages with an almost declarative style !  
+GambitReact is a **reactive web app framework** for **gambit scheme**, a bit like React, Angular, Next.js, and other frameworks. It provides an intuitive abstraction to manipulate reactive variables. On top of this, it includes an easy way to insert those variables inside html elements. This empowers you to write web pages with an almost declarative style !  
 
 ## An overview of reactivity
-The library `lib/reactive` lets us write reactive variables. First lets see a few simple examples : 
+The library `lib/reactive` lets us write reactive variables. First, let's see a few simple examples : 
 
 ### example 1
 
 ```scheme
-> (define x (reactive-var 40))
-> (reactive-set! x 42)
+> (define x (reactive-var 0))
+> (reactive-set! x 42) 
 > (display (reactive-ref x)) ;; displays 42
 42
 ```
@@ -37,7 +37,7 @@ This program display 43 and 44 when we modify the value inside the reactive var!
 
 ### What just happened
 
-The first example is pretty straight forward. A reactive var contains any value that can be accessed with `reactive-ref` and modified with `reactive-set!`. The second example is more interesting. Here we see that the value inside the reactive variable `x`  is displayed each time it changes. In other words, `(pp (list 'x= (reactive-ref x)))` is called each time the value of `x` is changed. This is what the `reactive` keyword does. It creates a `reactive-block` that *activates* each time `x` is changed.
+The first example is pretty straight forward. A reactive var contains a value, and it can be accessed with `reactive-ref` and modified with `reactive-set!`. The second example is more interesting. Here we see that the value inside the reactive variable `x`  is displayed each time it changes. In other words, `(pp (list 'x= (reactive-ref x)))` is called each time the value of `x` is changed. This is what the `reactive` keyword does. It creates a `reactive-block` that *activates* each time `x` is changed with `reactive-set!`.
 
 ## HTML-like syntax
 
@@ -111,7 +111,7 @@ Each HTML tag that we saw earlier can either take another HTML elements, or a *r
 )
 ```
 
-Here, we can see that we have a button, containing the text `"Number of clicks : 0"`.  We can see that clicking the button does nothing, we didn't add the callback yet. Lets do this in the next example
+Here, we can see that we have a button, containing the text `"Number of clicks : 0"`.  We can see that clicking the button does nothing, we didn't add the callback yet. Let's do this in the next example :
 
 ```scheme
 
@@ -129,4 +129,4 @@ Here, we can see that we have a button, containing the text `"Number of clicks :
 This version now works! We can see that we have a button that updates the number of clicks accordingly. We also see that we have a very "declarative" way of expressing our interface. 
 
 ## See more
-If you want to see more, you can go to the [demos](../demo) and check them out!
+If you want to see more, you can go check out the [demos](../demo) !
