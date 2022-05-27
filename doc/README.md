@@ -8,10 +8,9 @@
 Gambit react is **reactive web app framework** for **gambit scheme**, a bit like React, Angular, Next.js, and other frameworks. It provides an intuitive abstraction to manipulate reactive variables. On top of this, it includes an easy way to insert those variables inside html elements. This empowers you to write web pages with an almost declarative style !  
 
 ## An overview of reactivity
-### A starting point
 The library `lib/reactive` lets us write reactive variables. First lets see a few simple examples : 
 
-#### example 1
+### example 1
 
 ```scheme
 > (define x (reactive-var 40))
@@ -22,7 +21,7 @@ The library `lib/reactive` lets us write reactive variables. First lets see a fe
 
 This program will simply show the value `42` that is present inside the reactive var.
 
-#### example 2
+### example 2
 
 ```scheme
 > (define x (reactive-var 42))
@@ -36,12 +35,11 @@ This program will simply show the value `42` that is present inside the reactive
 
 This program display 43 and 44 when we modify the value inside the reactive var!
 
-#### What just happened
+### What just happened
 
 The first example is pretty straight forward. A reactive var contains any value that can be accessed with `reactive-ref` and modified with `reactive-set!`. The second example is more interesting. Here we see that the value inside the reactive variable `x`  is displayed each time it changes. In other words, `(pp (list 'x= (reactive-ref x)))` is called each time the value of `x` is changed. This is what the `reactive` keyword does. It creates a `reactive-block` that *activates* each time `x` is changed.
 
 ## HTML-like syntax
-### A starting point
 
 The library `lib/reactive-html` lets us write HTML elements that *can* be reactive. We will see reactivity on the 3rd chapiter. Here is an example without any reactivity :
 
@@ -130,5 +128,5 @@ Here, we can see that we have a button, containing the text `"Number of clicks :
 
 This version now works! We can see that we have a button that updates the number of clicks accordingly. We also see that we have a very "declarative" way of expressing our interface. 
 
-### See more
-If you want to see more, you can go to the [demos](../demo) and check them out !
+## See more
+If you want to see more, you can go to the [demos](../demo) and check them out!
