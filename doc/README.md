@@ -25,12 +25,12 @@ This program will simply show the value `42` that is present inside the reactive
 
 ```scheme
 > (define x (reactive-var 42))
-> (reactive (pp (list 'x= (reactive-ref x))))
+> (reactive (println "x = " (reactive-ref x)))
 <reactive-block #1 ...>
 > (reactive-set! x 43)
-(x= 43)
+x = 43
 > (reactive-set! x 44)
-(x= 44)
+x = 44
 ```
 
 This program display 43 and 44 when we modify the value inside the reactive var!
