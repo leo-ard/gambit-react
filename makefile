@@ -30,6 +30,13 @@ demo/%: lib/VM.js demo/%/* .PHONY
 	python3 -m virtualenv .venv
 	. .venv/bin/activate && pip install livereload
 
+test: .PHONY
+	for testfile in test/*; do \
+		echo "====== TESTING : " $$testfile " ======"; \
+		gsi ./lib/ $$testfile; \
+	done
+
+
 #serve-update: app.js .venv
 #	. .venv/bin/activate && python3 update-server.py
 
