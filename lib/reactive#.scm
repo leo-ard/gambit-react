@@ -2,7 +2,7 @@
 
 ;;; File: "reactive#.scm"
 
-;;; Copyright (c) 2020-2021 by Léonard Oest O'Leary, All Rights Reserved.
+;;; Copyright (c) 2020-2021 by Léonard Oest O'Leary and Marc Feeley, All Rights Reserved.
 
 ;;;============================================================================
 
@@ -52,7 +52,7 @@
        #'(reactive-var-update! old new))
       ((_ old new)
        #'(##set! old new)))))
-|#
+
 
 (define-syntax reactive
   (lambda (src)
@@ -95,44 +95,44 @@
       `(reactive-block
         (##list ,@deps)
         (##lambda () ,@(cdr (##source-strip src)))))))
+|#
+
+
+
+
+(define-macro (reactive . args)
+  (let ((block-name (gensym))
+        (value      (gensym)))
+    `(let* ((,block-name (reactive-block (lambda () ,@args) '()))
+            (,value      ($$retrieve-value ,block-name)))
+       (reactive-node-value-set! ,block-name ,value)
+       ,block-name)))
+
+(define-macro (reactive-ref reactive-var)
+  `($$reactive-ref ($$reactive-scope) ,reactive-var))
 
 (##namespace
  ("reactive#"
-
-  ;; debug only
-  reactive-block-counter
-  reactive-var-counter
-
-  reactive?
+  
   reactive-var
-  reactive-ref
   reactive-block
-  reactive-set!
-  reactive-block-update!
-  reactive-block-remove
+  $$reactive-update-dependencies
+  $$reactive-scope
+  $$add-dependencie
+  $$reactive-ref
+  $$retrieve-value
 
-  reactive-var-value-update!
-  reactive-var?
+  reactive-node-value
+  reactive-node-value-set!
+  reactive-node-value-set
 
-  reactive-var-value
-  reactive-var-value-set!
-  reactive-var-value-set
+  reactive-node-dependencies
+  reactive-node-dependencies-set!
+  reactive-node-dependencies-set
 
-  reactive-var-equal?
-  reactive-var-equal?-set!
-  reactive-var-equal?-set
+  reactive-update!
 
-  reactive-var-dependent-block
-  reactive-var-dependent-block-set!
-  reactive-var-dependent-block-set
+  reactive-scope-create
 
-  reactive-block?
-  reactive-block-thunk
-  reactive-block-activate
-  reactive-block-bindings
-  reactive-block-add-binding
-
-  reactive-block-thunk-set!
-  reactive-block-activate-set!
-  reactive-block-bindings-set!))
+  ))
 
