@@ -2,10 +2,6 @@
 
 Demonstration of how to use Gambit to build web apps.
 
-## Instructions
-
-Set the `GAMBITDIR` shell environment variable to the path to your local gambit repository (the directory from which you compile gambit). For example: `export GAMBITDIR=/path/to/gambit`. Then simply run `make` to build the code, and run `make serve` to launch the HTTPs server.
-
 ## Run demos
 
 To run demos, simply do : 
@@ -13,3 +9,11 @@ To run demos, simply do :
 `make demo/[my demo]`
 
 Demos are available [here](./demo)
+
+You can also run demos in "update mode" meaning that changes in dependencies to generate the demo will automatically reload the page. To do so, simply do : 
+
+`make SERVE=update demo/[my demo]`
+
+For example, to run the chat, do : 
+
+`make SERVE=update demo/chat`
