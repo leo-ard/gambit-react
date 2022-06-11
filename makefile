@@ -6,6 +6,7 @@
 # GSC = $(GAMBITDIR)/gsc/gsc -:~~bin=$(srcdirpfx)$(GAMBITDIR)/bin,~~lib=$(srcdirpfx)$(GAMBITDIR)/lib,~~include=$(srcdirpfx)$(GAMBITDIR)/include
 
 GSC=gsc
+SERVE=normal
 
 # serve: app.js
 # 	@echo "===== Listening on https://localhost:4443"
@@ -14,10 +15,18 @@ GSC=gsc
 lib/VM.js: lib/*
 	cd lib && $(MAKE) GSC='$(GSC)'
 
+serve/demo/%: demo/%
+	cd $< && python2 $(PWD)/misc/https-server.py $(PWD)/misc/https-server-certificate.pem
+
 demo/%: lib/VM.js demo/%/* .PHONY
 	cd $@ && $(MAKE) GSC='$(GSC)' VM='$(PWD)/lib/VM.js'
+ifeq ($(SERVE), normal)
 	cd $@ && python2 $(PWD)/misc/https-server.py $(PWD)/misc/https-server-certificate.pem
- 
+endif
+ifeq ($(SERVE), update)
+	$(MAKE) .venv-server && . .venv-server/bin/activate && python misc/update-server.py --cwd $@ --watch "*.scm" --watch "../../lib/*.scm" --command "make SERVE=none $@" --commandcwd "../.."
+endif
+
 .PHONY: ;
 
 # demo-reactiveButton: lib/VM.js demo/reactiveButton/*
@@ -25,10 +34,10 @@ demo/%: lib/VM.js demo/%/* .PHONY
 	# cd demo/reactiveButton && python2 $(PWD)/misc/https-server.py $(PWD)/misc/https-server-certificate.pem
 
 
-.venv:
-	@echo "generating virtualenv in .venv for update-server"
-	python3 -m virtualenv .venv
-	. .venv/bin/activate && pip install livereload
+.venv-server:
+	@echo "generating virtualenv in .venv-server for update-server"
+	python3 -m virtualenv .venv-server
+	. .venv-server/bin/activate && pip install livereload
 
 test: .PHONY
 	for testfile in test/*; do \

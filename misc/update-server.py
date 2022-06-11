@@ -2,9 +2,23 @@
 
 from livereload import Server, shell
 from subprocess import Popen, PIPE
-import os
 
-GENERATED_NAME = "index-generated.html"
+import os, argparse
+
+
+parser = argparse.ArgumentParser(description="A command line util for live-reload servers")
+parser.add_argument('--command', type=str, help="Command line to be called when reloading", default="make")
+parser.add_argument('--commandcwd', type=str, help="Current directory to call the command from", default=os.getcwd())
+parser.add_argument('--cwd', type=str, help="current directory", default=os.getcwd())
+parser.add_argument('--watch', action='append')
+
+
+
+args = parser.parse_args()
+
+print(args.watch)
+
+GENERATED_NAME = "index.generated.html"
 
 
 def gen_error(error):
@@ -13,22 +27,23 @@ def gen_error(error):
     <head>
     </head>
     <body>
-    <div>
-    <textarea style="width:100%; height:100%">
-     {error}
-    </textarea>
-    </div>
+        <div>
+            <textarea style="width:100%; height:100%">
+            {error}
+            </textarea>
+        </div>
     </body>
-</html>
+</html>"""
 
-
-    """
+#os.system("cd "+ args.cwd)
+os.chdir(args.cwd)
+os.system("pwd")
 
 
 serve = Server()
 
 def update():
-    p = Popen(['make'], stdout=PIPE, stderr=PIPE)
+    p = Popen(args.command.split(" "),cwd=args.commandcwd, stdout=PIPE, stderr=PIPE)
     output = p.stdout.read()
     print(p.returncode)
     print(output.decode("utf-8"))
@@ -41,6 +56,7 @@ def update():
         s.close()
 
 os.system("cp index.html " + GENERATED_NAME)
+for watch in args.watch:
+    serve.watch(watch, update)
 
-serve.watch('*.scm', update)
 serve.serve(root=".", default_filename=GENERATED_NAME)
