@@ -2,7 +2,7 @@
 
 ;;; File: "reactive.scm"
 
-;;; Copyright (c) 2020-2022 by Léonard Oest O'Leary, All Rights Reserved.
+;;; Copyright (c) 2020-2022 by Léonard Oest O'Leary and Marc Feeley, All Rights Reserved.
 
 ;;;============================================================================
 
@@ -19,7 +19,7 @@
   thunk
   dependencies)
 
-
+;; A reactive variable is just a node with a value
 (define (reactive-var value #!optional (equal? equal?))
   (make-reactive-node value equal? #f '()))
 
