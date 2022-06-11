@@ -47,67 +47,166 @@
          (string=? (substring key-str 0 5) "link:")
          (substring key-str 5 (string-length key-str)))))
 
-(define (parse-args args table)
+(define $$body-tag 'body)
+
+(define (parse-args args 
+                    #!optional (table (let ((table (make-table))) 
+                                        (table-set! table $$body-tag '()) 
+                                        table)))
 
   (define (set-attr attr val)
     (cond
-     ((table-ref table attr #f)
-      =>
-      (lambda (old-val)
-        (if (eq? attr body:)
-            (table-set! table body: (cons val (table-ref table body:)))
-            (error "Cannot set the attribute twice : " attr old-val))))
-     ((keyword? val) (error "Attribute value is not a value (but a keyword)"))
-     (else (table-set! table attr val))))
+      ((table-ref table attr #f)
+       =>
+       (lambda (old-val)
+         (error "Cannot set the attribute twice : " attr old-val)))
+      ((keyword? val) (error "Attribute value is a keyword"))
+      (else (table-set! table attr val))))
 
   (cond
-   ((not (pair? args)) table)
-   ((keyword? (car args))
-    (begin
-      (if (pair? (cdr args))
-          (set-attr (car args) (cadr args))
-          (error "Expecting value after attribute" (car args)))
-      (parse-args (cddr args) table)))
-   (else
-    (if (not (table-ref table body: #f))
-        (table-set! table body: '()))
-    (table-set! table body: (append (table-ref table body:) (list (car args)) ))
-    (parse-args (cdr args) table))))
+    ((not (pair? args)) table)
+    ((keyword? (car args))
+     (if (pair? (cdr args))
+       (set-attr (car args) (cadr args))
+       (error "Expecting value after attribute" (car args)))
+     (parse-args (cddr args) table))
+    ((list? (car args))
+     (table-set! table $$body-tag (append (table-ref table $$body-tag) (car args)))
+     (parse-args (cdr args) table))
+    (else
+      (table-set! table $$body-tag (append (table-ref table $$body-tag) (list (car args)) ))
+      (parse-args (cdr args) table))))
+
+(define (<div> . raw-args)
+  (define args (parse-args raw-args))
+  (define tag (createElement "div"))
+
+  (for-each
+    (lambda (kv)
+      (define key (car kv))
+      (define value (cdr kv))
+
+      (cond 
+        ((equal? key $$body-tag)
+
+         (for-each
+           (lambda (elem)
+             \(`tag).appendChild(`(toDomElement elem)))
+           value))
+        (else
+          \(`tag).setAttribute(`(keyword->string key), `value))))
 
 
-(define (obj->str obj) (with-output-to-string (lambda () (write obj))))
-(define (jsdump obj) \console.log(`(obj->str obj)))
-
-(define (mutationCallback e mut)
-  \(`e).forEach(`(lambda (mutationRecord . foo)
-                   \(`mutationRecord).removedNodes.forEach(`remove-reactive-block-on-dom))))
-
-(define mutationConfigs \(new Object()))
-\(`mutationConfigs).childList=true
+    (table->list args))
+  tag)
 
 
-(define mutationObject \(new MutationObserver(`mutationCallback)))
+(define (<p> . raw-args)
+  (define args (parse-args raw-args))
+  (define tag (createElement "p"))
+
+  (for-each
+    (lambda (kv)
+      (define key (car kv))
+      (define value (cdr kv))
+
+      (cond 
+        ((equal? key $$body-tag)
+
+         (for-each
+           (lambda (elem)
+             \(`tag).appendChild(`(toDomElement elem)))
+           value))
+        (else
+          \(`tag).setAttribute(`(keyword->string key), `value))))
 
 
-(define (register-observer-on-parent elem)
+    (table->list args))
+  tag)
+
+
+(define (create-app #!key (debug #f) (root "#app") . dom-elems)
+  ;(define args (parse-args raw-args))
+
+  (define root-node \document.querySelector(`root))
+
+  (define default-html (<p> "No node in create-app, add some to get started !"))
+
+  ;; Register garbage collection on root node
+
+
+  (define (remove-reactive-node-on-dom domelem . foo) ;; foo is for javascript compatibilty
+    (let ((reactive-nodes \(`domelem).reactiveNodes))
+      (if reactive-nodes
+        (begin
+
+          (if debug
+            \console.log("deleting", `domelem, "had", `(length reactive-nodes), "blocks"))
+
+          \Array.from(`(domelem).childNodes.values).forEach(`remove-reactive-node-on-dom) ;; remove from child
+
+          (for-each
+            (lambda (block)
+              (reactive-block-remove block))
+            reactive-nodes)
+
+          \(`domelem).reactiveblock=undefined))))
+  
+
+  (define mutationConfig
+    (let ((mutationConf \(new Object())))
+      \(`mutationConf).childList=true
+      \(`mutationConf).subtree=true
+      mutationConf))
+
+  (define (mutationCallback e mut)
+    \(`e).forEach(`(lambda (mutationRecord . foo)
+                      \(`mutationRecord).removedNodes.forEach(`remove-reactive-block-on-dom))))
+
+  (define mutationObject \(new MutationObserver(`mutationCallback)))
+
+
+
+  
+  ;\console.log(`mutationConfig)
+  
+  \(`mutationObject).observe(`root-node , `mutationConfig)
+
+  (if debug 
+    \(`root-node).appendChild(`(<div>
+                                 style: "position:fixed; top:0; right:0; background-color: #ffff005e; color: #000000a6;"
+                                 (<p>
+                                   "Reactive block: " reactive-block-counter (<br>)
+                                   "Reactive variables: " reactive-var-counter))))
+
+  (for-each
+    (lambda (dom-elem . foo)
+      \(`root-node).appendChild(`dom-elem))
+    dom-elems)
+  \console.log("heyyy")
+)
+
+
+
+;(define (obj->str obj) (with-output-to-string (lambda () (write obj))))
+;(define (jsdump obj) \console.log(`(obj->str obj)))
+
+
+
+
+
+
+#;(define (register-observer-on-parent elem)
   #;\console.log("registering parent ", `elem)
   \(`mutationObject).observe(`elem, `mutationConfigs))
 
-(define (register-reactive-block-on-dom domelem block)
-  (let ((reactive-block-lst \((`domelem).reactiveblock)))
+(define (register-reactive-node-on-dom domelem node)
+  (let ((reactive-nodes \((`domelem).reactiveNodes)))
     #;\console.log("registering node", `domelem)
-    (if \(`reactive-block-lst)===undefined
-        \(`domelem).reactiveblock=`(scheme (list block))
-        \(`domelem).reactiveblock=`(scheme (cons block reactive-block-lst)))))
+    (if \(`reactive-nodes)===undefined
+        \(`domelem).reactiveNodes=`(scheme (list node))
+        \(`domelem).reactiveNodes=`(scheme (cons node reactive-nodes)))))
 
-(define (remove-reactive-block-on-dom domelem . foo) ;; foo is for javascript compatibilty
-  (let ((reactive-block-lst \(`domelem).reactiveblock))
-    #;\console.log("deleting", `domelem, "had", `(length reactive-block-lst), "blocks")
-    (for-each
-     (lambda (block)
-       (reactive-block-remove block))
-     reactive-block-lst)
-    \(`domelem).reactiveblock=undefined))
 
 ;; Utility functions
 
@@ -124,7 +223,7 @@
 (define (createElement name)
   \document.createElement(`name))
 
-(define (createApp . elems)
+#;(define (createApp . elems)
 
   (define args (parse-args elems (make-table)))
   (define default-html

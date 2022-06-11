@@ -2,11 +2,11 @@
 
 ;;; File: "reactive-html#.scm"
 
-;;; Copyright (c) 2020-2021 by Léonard Oest O'Leary, All Rights Reserved.
+;;; Copyright (c) 2020-2022 by Léonard Oest O'Leary and Marc Feeley, All Rights Reserved.
 
 ;;;============================================================================
 
-(define-macro (define-html-tag tag)
+#;(define-macro (define-html-tag tag)
 
   (let* ((proc-name tag)
          (tag-string (symbol->string tag))
@@ -87,7 +87,7 @@
 
          elem))))
 
-(define-macro (define-and-register-tag . tags)
+#;(define-macro (define-and-register-tag . tags)
    `(begin
       ,@(map
          (lambda (tag)
@@ -96,8 +96,9 @@
       (##namespace ("reactive-html#" ,@tags))))
 
 (##namespace ("reactive-html#"
+              create-app
               createElement
-              createApp
+              ;createApp
               on-keyword?
               link-keyword?
               toDomElement
@@ -106,10 +107,15 @@
               register-reactive-block-on-dom
               register-observer-on-parent
               event-queue
-              listen-events))
+              listen-events
+
+              <div>
+              <p>
+
+              ))
 
 ;; source https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-(define-and-register-tag
+#;(define-and-register-tag
 
   <div>
   <a>
