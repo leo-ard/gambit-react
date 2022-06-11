@@ -134,7 +134,6 @@
 
   ;; Register garbage collection on root node
 
-
   (define (remove-reactive-node-on-dom domelem . foo) ;; foo is for javascript compatibilty
     (let ((reactive-nodes \(`domelem).reactiveNodes))
       (if reactive-nodes
@@ -151,7 +150,7 @@
             reactive-nodes)
 
           \(`domelem).reactiveblock=undefined))))
-  
+
 
   (define mutationConfig
     (let ((mutationConf \(new Object())))
@@ -160,15 +159,11 @@
       mutationConf))
 
   (define (mutationCallback e mut)
+    \console.log("callback")
     \(`e).forEach(`(lambda (mutationRecord . foo)
-                      \(`mutationRecord).removedNodes.forEach(`remove-reactive-block-on-dom))))
+                      \(`mutationRecord).removedNodes.forEach(`remove-reactive-node-on-dom))))
 
   (define mutationObject \(new MutationObserver(`mutationCallback)))
-
-
-
-  
-  ;\console.log(`mutationConfig)
   
   \(`mutationObject).observe(`root-node , `mutationConfig)
 
@@ -176,14 +171,15 @@
     \(`root-node).appendChild(`(<div>
                                  style: "position:fixed; top:0; right:0; background-color: #ffff005e; color: #000000a6;"
                                  (<p>
-                                   "Reactive block: " reactive-block-counter (<br>)
-                                   "Reactive variables: " reactive-var-counter))))
+                                   "not yet available"
+                                   ;"Reactive block: " reactive-block-counter (<br>)
+                                   ;"Reactive variables: " reactive-var-counter
+                                   ))))
 
   (for-each
     (lambda (dom-elem . foo)
       \(`root-node).appendChild(`dom-elem))
     dom-elems)
-  \console.log("heyyy")
 )
 
 

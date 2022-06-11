@@ -25,9 +25,9 @@
 (##declare (extended-bindings) (standard-bindings) (block))
 
 (create-app
- (<div>
-   (<p> "this is a test")))
-
+  debug: #t
+  (<div>
+    (<p> "this is a real test")))
 
 \console.log("heyyyyyy")
 
