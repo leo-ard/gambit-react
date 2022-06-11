@@ -77,52 +77,7 @@
       (table-set! table $$body-tag (append (table-ref table $$body-tag) (list (car args)) ))
       (parse-args (cdr args) table))))
 
-(define (<div> . raw-args)
-  (define args (parse-args raw-args))
-  (define tag (createElement "div"))
 
-  (for-each
-    (lambda (kv)
-      (define key (car kv))
-      (define value (cdr kv))
-
-      (cond 
-        ((equal? key $$body-tag)
-
-         (for-each
-           (lambda (elem)
-             \(`tag).appendChild(`(toDomElement elem)))
-           value))
-        (else
-          \(`tag).setAttribute(`(keyword->string key), `value))))
-
-
-    (table->list args))
-  tag)
-
-
-(define (<p> . raw-args)
-  (define args (parse-args raw-args))
-  (define tag (createElement "p"))
-
-  (for-each
-    (lambda (kv)
-      (define key (car kv))
-      (define value (cdr kv))
-
-      (cond 
-        ((equal? key $$body-tag)
-
-         (for-each
-           (lambda (elem)
-             \(`tag).appendChild(`(toDomElement elem)))
-           value))
-        (else
-          \(`tag).setAttribute(`(keyword->string key), `value))))
-
-
-    (table->list args))
-  tag)
 
 
 (define (create-app #!key (debug #f) (root "#app") . dom-elems)
@@ -197,8 +152,9 @@
   \(`mutationObject).observe(`elem, `mutationConfigs))
 
 (define (register-reactive-node-on-dom domelem node)
+
   (let ((reactive-nodes \((`domelem).reactiveNodes)))
-    #;\console.log("registering node", `domelem)
+    \console.log("registering node", `domelem)
     (if \(`reactive-nodes)===undefined
         \(`domelem).reactiveNodes=`(scheme (list node))
         \(`domelem).reactiveNodes=`(scheme (cons node reactive-nodes)))))
@@ -241,6 +197,72 @@
   \document.getElementById("app").appendChild(`(<div> body: (table-ref args body: default-html))))
 
 
+(define (gen-tag name)
+
+  (define (func . raw-args)
+    (define args (parse-args raw-args))
+    (define tag (createElement name))
+  
+    (for-each
+      (lambda (kv)
+        (define key (car kv))
+        (define value (cdr kv))
+  
+        (cond 
+          ((equal? key $$body-tag)
+           (for-each
+             (lambda (elem)
+              (cond
+                ((reactive? elem)
+                  (let ((old (toDomElement (reactive-ref elem))))
+                    \(`tag).appendChild(`old)
+                    (register-reactive-node-on-dom
+                      tag
+                      (reactive
+                        ;; TODO: find a way to not call this code directly
+                        (let ((new (toDomElement (reactive-ref elem)))) 
+                          \(`tag).replaceChild(`new ,`old)
+                          (set! old new)
+                          )))))
+                (else
+                  \(`tag).appendChild(`(toDomElement elem)))))
+             value))
+  
+          
+          ((on-keyword? key)
+           =>
+           (lambda (event)
+             \(`elem).addEventListener(`event,
+                                       `(lambda (e)
+                                          (write
+                                            (lambda () (value e))
+                                            event-queue)))))
+  
+          ((link-keyword? key)
+           =>
+           (lambda (prop)
+             (register-reactive-node-on-dom
+               tag
+               (reactive
+                 \(`tag)[`prop]=`(reactive-ref value)))))
+  
+          ((reactive? value)
+           (register-reactive-node-on-dom
+             tag
+             (reactive
+               \(`tag).setAttribute(`(keyword->string key), `value))))
+          
+          (else
+            \(`tag).setAttribute(`(keyword->string key), `value))))
+  
+  
+      (table->list args))
+    tag)
+
+  func)
+
+(define <p> (gen-tag "p"))
+(define <div> (gen-tag "div"))
 
 
 

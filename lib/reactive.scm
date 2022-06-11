@@ -17,21 +17,23 @@
   value
   equal?
   thunk
-  dependencies)
+  dependencies
+  deleted)
 
-;; A reactive variable is just a node with a value
+;; A reactive variable is just a node with a value, and without an update function
 (define (reactive-var value #!optional (equal? equal?))
-  (make-reactive-node value equal? #f '()))
+  (make-reactive-node value equal? #f '() #f))
 
 (define (reactive-block thunk #!optional (dependencies '()) (equal? equal?))
-  (make-reactive-node #f equal? thunk dependencies))
+  (make-reactive-node #f equal? thunk dependencies #f))
 
 (define ($$reactive-update-dependencies node)
   (let ((dependencies (reactive-node-dependencies node)))
     (reactive-node-dependencies-set! node '())
     (for-each 
       (lambda (reactive-node)
-        (reactive-update! reactive-node))
+        (if (not (reactive-node-deleted reactive-node))
+            (reactive-update! reactive-node)))
       dependencies)))
 
 (define ($$retrieve-value node)
@@ -57,8 +59,14 @@
     (if (not (eq-func new-value old-value))
       (begin
         (reactive-node-value-set! node new-value)
-        ($$reactive-update-dependencies node)))
-    ))
+        ($$reactive-update-dependencies node)))))
+
+(define (reactive-delete! node)
+  (reactive-node-deleted-set! node #t))
+
+(define reactive? reactive-node?)
+(define (reactive-var? node) (and (reactive? node) (not (reactive-node-thunk node)))) 
+(define (reactive-block? node) (and (reactive? node) (reactive-node-thunk node)))
 
 
 ;; global scope

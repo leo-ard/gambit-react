@@ -29,6 +29,9 @@
   $$reactive-ref
   $$retrieve-value
 
+  reactive?
+  reactive-block?
+
   reactive-node-value
   reactive-node-value-set!
   reactive-node-value-set
@@ -37,7 +40,12 @@
   reactive-node-dependencies-set!
   reactive-node-dependencies-set
 
+  reactive-node-deleted
+  reactive-node-deleted-set!
+  reactive-node-deleted-set
+
   reactive-update!
+  reactive-delete!
 
   reactive-scope-create
 
