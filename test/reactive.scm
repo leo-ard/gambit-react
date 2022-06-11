@@ -60,4 +60,25 @@
 (test-equal (reactive-ref x) 43)
 (test-equal (reactive-ref y) 86)
 
+;; delete 
+
+(define x (reactive 42))
+
+(define y (reactive (+ 1 (reactive-ref x))))
+
+(define z (reactive (+ 1 (reactive-ref y))))
+
+(reactive-delete! y)
+(reactive-update! x 0)
+
+(test-equal (reactive-node-deleted y) #t)
+(test-equal (reactive-ref y) 43)
+(test-equal (reactive-ref z) 44)
+
+(test-equal (length (reactive-node-dependencies x)) 0)
+
+
+
+
+
 
