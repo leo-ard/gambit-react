@@ -24,12 +24,12 @@
 
 (##declare (extended-bindings) (standard-bindings) (block))
 
-(createApp
+(create-app
  debug: #t
  (let ((my-var (reactive-var 0)))
    (<div>
      (<button> 
-       on:click: (lambda (e) (reactive-set! my-var (+ 1 (reactive-ref my-var))))
+       on:click: (lambda (e) (reactive-update! my-var (+ 1 (reactive-ref my-var))))
        "Number of clicks : " my-var))))
 
 (listen-events)
