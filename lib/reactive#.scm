@@ -7,17 +7,16 @@
 ;;;============================================================================
 
 
-(define-macro (reactive . args)
+(define-macro (reactive #!key (initialize #t) . args)
   (let ((block-name (gensym))
         (value      (gensym)))
     `(let* ((,block-name (reactive-block (lambda () ,@args)))
-            (,value      ($$retrieve-value ,block-name)))
+            (,value      (if initialize ($$retrieve-value ,block-name) #!void)))
        (reactive-node-value-set! ,block-name ,value)
        ,block-name)))
 
 (define-macro (reactive-ref reactive-var)
   `($$reactive-ref ($$reactive-scope) ,reactive-var))
-
 
 (define-macro (no-reactive-ref reactive-var)
   `($$reactive-ref #f ,reactive-var))
