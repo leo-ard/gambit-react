@@ -54,4 +54,5 @@ clean:
 	for i in demo/*; do \
 	   cd $(PWD)/$$i && $(MAKE) clean; \
 	done
+	cd misc/websocket && $(MAKE) clean
 
