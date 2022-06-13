@@ -41,7 +41,7 @@
               reactive-socket
               reactive-socket-send
               reactive-socket-receive
-              reactive-socket-open
+              reactive-socket-status
 
               ))
 

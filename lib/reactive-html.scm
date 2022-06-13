@@ -78,30 +78,30 @@
       (parse-args (cdr args) table))))
 
 (define-type reactive-socket
-  open
+  status
   send
   receive)
 
 (define (reactive-socket url)
 
   (let ((ws \new WebSocket(`url))
-        (open    (reactive-var #f (lambda (x y) #f)))
+        (status  (reactive-var 'connecting)) ;; three status : connecting, open and closed
         (send    (reactive-var 0 (lambda (x y) #f)))
         (receive (reactive-var 0 (lambda (x y) #f))))
     (define (onopen e)
       (reactive
-        \console.log("sending...")
+        initialize: #f
         (let ((object (object->u8vector (reactive-ref send))))
           \(`ws).send(`object)))
-      (reactive-update! open #t))
+      (reactive-update! status 'open))
 
     ;; translate the data to a scheme object
     \(`ws).onmessage=function(m){m.data.arrayBuffer().then(`(lambda (buf) \console.log("receiving...") (reactive-update! receive (u8vector->object \new Uint8Array(`buf)))));} 
 ;\console.log("hey2")
 
     \(`ws).onopen=`onopen
-    \(`ws).onclose=console.log
-    (make-reactive-socket open send receive)))
+    \(`ws).onclose=`(lambda (e) (reactive-update! status 'closed))
+    (make-reactive-socket status send receive)))
 
 
 (define (create-app #!key (debug #f) (root "#app") . dom-elems)
@@ -244,7 +244,7 @@ dom-elems)
                     (register-reactive-node-on-dom
                       tag
                       (reactive
-                        ;; TODO: find a way to not call this code directly
+                        initialize: #f
                         (let ((new (toDomElement (reactive-ref elem)))) 
                           \(`tag).replaceChild(`new ,`old)
                           (set! old new)
