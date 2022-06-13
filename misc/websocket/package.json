@@ -1,0 +1,14 @@
+{
+  "name": "broadcast-websocket",
+  "version": "1.0.0",
+  "description": "A simple broadcasting websocket server",
+  "main": "broadcast.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Léonard Oest O'Leary and Marc Feeley",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.8.0"
+  }
+}
