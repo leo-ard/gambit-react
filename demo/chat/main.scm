@@ -50,9 +50,9 @@
 (create-app
   debug: #t
   (let* ((socket (reactive-socket "ws://localhost:7777"))
+         (socket-status (reactive-socket-status socket))
          (socket-send (reactive-socket-send socket))
          (socket-receive (reactive-socket-receive socket))
-         (socket-open (reactive-socket-open socket))
          (all-messages (reactive-var '()))
          (name (reactive-var #f)))
 
@@ -63,8 +63,10 @@
         (cond
           ((not (reactive-ref name))
            (<reactive-input> "Enter a name :" "" (lambda (name-string) (reactive-update! name name-string))))
-          ((not (reactive-ref socket-open))
+          ((eq? (reactive-ref socket-status) 'connecting)
            (<p> "connecting to socket..."))
+          ((eq? (reactive-ref socket-status) 'closed)
+           (<p> "The connection to the socket was closed, please refresh the page or launch the server"))
           (else
             (<div> 
               (reactive
