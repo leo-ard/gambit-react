@@ -22,10 +22,10 @@
 (##include "../../lib/reactive-html#.scm")
 
 (##declare (extended-bindings) (standard-bindings) (block))
+
 ;; app.scm
 
-
-(createApp
+(create-app
  debug: #t
  (<p> "Ce fichier contient les démos de svelte, mais implémenté dans gambit-react ! "
       (<br>)
@@ -37,19 +37,20 @@
 
  ;; demo 1
  (let* ((count (reactive-var 0))
-        (onclick (lambda (e) (reactive-set! count (+ 1 (reactive-ref count))))))
+        (onclick (lambda (e) \console.log("clicked !") (reactive-update! count (+ 1 (reactive-ref count))))))
 
    (<div>
-    (<h2> "Reactive assignments")
+    ;(<h2> "Reactive assignments")
     (<button> on:click: onclick
               (reactive
+                \console.log("updating...")
                (string-append "Clicked "
                               (number->string (reactive-ref count))
                               (if (fx= (reactive-ref count) 1) " time" " times"))))))
 
  ;; demo 2
  (let* ((count (reactive-var 1))
-        (onclick (lambda (e) (reactive-set! count (+ 1 (reactive-ref count)))))
+        (onclick (lambda (e) (reactive-update! count (+ 1 (reactive-ref count)))))
         (doubled (reactive (* 2 (reactive-ref count))))
         (quadrupled (reactive (* 2 (reactive-ref doubled)))))
 
@@ -69,12 +70,12 @@
 
  ;; demo 3
  (let* ((count (reactive-var 1))
-        (onclick (lambda (e) (reactive-set! count (+ 1 (reactive-ref count))))))
+        (onclick (lambda (e) (reactive-update! count (+ 1 (reactive-ref count))))))
    (reactive
     (if (>= (reactive-ref count) 10)
         (begin
           \alert("count is deangerously high")
-          (reactive-set! count 9))
+          (reactive-update! count 9))
         ))
    (<div>
     (<h2> "Reactive statement")
@@ -85,7 +86,7 @@
 
  ;; demo 4
  (let* ((name (reactive-var "this is my name"))
-        (onchange (lambda (e) (reactive-set! name \(`e).srcElement.value))))
+        (onchange (lambda (e) (reactive-update! name \(`e).srcElement.value))))
    (<div>
     (<h2> "Binding ")
     (<label> "name :" for: "input")
