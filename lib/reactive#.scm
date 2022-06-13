@@ -11,7 +11,7 @@
   (let ((block-name (gensym))
         (value      (gensym)))
     `(let* ((,block-name (reactive-block (lambda () ,@args)))
-            (,value      (if initialize ($$retrieve-value ,block-name) #!void)))
+            (,value      ,(if initialize `($$retrieve-value ,block-name) `#!void)))
        (reactive-node-value-set! ,block-name ,value)
        ,block-name)))
 
