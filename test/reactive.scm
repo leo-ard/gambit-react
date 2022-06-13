@@ -75,7 +75,7 @@
 (test-equal (reactive-ref y) 43)
 (test-equal (reactive-ref z) 44)
 
-(test-equal (length (reactive-node-dependencies x)) 0)
+(test-equal (table-length (reactive-node-dependencies x)) 0)
 
 
 

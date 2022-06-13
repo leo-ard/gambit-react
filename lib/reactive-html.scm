@@ -77,7 +77,31 @@
       (table-set! table $$body-tag (append (table-ref table $$body-tag) (list (car args)) ))
       (parse-args (cdr args) table))))
 
+(define-type reactive-socket
+  open
+  send
+  receive)
 
+(define (reactive-socket url)
+
+  (let ((ws \new WebSocket(`url))
+        (open    (reactive-var #f (lambda (x y) #f)))
+        (send    (reactive-var 0 (lambda (x y) #f)))
+        (receive (reactive-var 0 (lambda (x y) #f))))
+    (define (onopen e)
+      (reactive
+        \console.log("sending...")
+        (let ((object (object->u8vector (reactive-ref send))))
+          \(`ws).send(`object)))
+      (reactive-update! open #t))
+
+    ;; translate the data to a scheme object
+    \(`ws).onmessage=function(m){m.data.arrayBuffer().then(`(lambda (buf) \console.log("receiving...") (reactive-update! receive (u8vector->object \new Uint8Array(`buf)))));} 
+;\console.log("hey2")
+
+    \(`ws).onopen=`onopen
+    \(`ws).onclose=console.log
+    (make-reactive-socket open send receive)))
 
 
 (define (create-app #!key (debug #f) (root "#app") . dom-elems)
@@ -91,50 +115,49 @@
 
   (define (remove-reactive-node-on-dom domelem . foo) ;; foo is for javascript compatibilty
     (let ((reactive-nodes \(`domelem).reactiveNodes))
-      (if reactive-nodes
-        (begin
+    (if reactive-nodes
+      (begin
 
-          (if debug
-            \console.log("deleting", `domelem, "had", `(length reactive-nodes), "blocks"))
+        (if debug
+          \console.log("deleting", `domelem, "had", `(length reactive-nodes), "blocks"))
 
-          \Array.from(`(domelem).childNodes.values).forEach(`remove-reactive-node-on-dom) ;; remove from child
+        \Array.from((`domelem).childNodes.values).forEach(`remove-reactive-node-on-dom) ;; remove from child
 
-          (for-each
-            (lambda (block)
-              (reactive-block-remove block))
-            reactive-nodes)
+        (for-each
+          (lambda (block)
+            (reactive-delete! block))
+          reactive-nodes)
 
-          \(`domelem).reactiveblock=undefined))))
+        \(`domelem).reactiveblock=undefined))))
 
 
-  (define mutationConfig
-    (let ((mutationConf \(new Object())))
-      \(`mutationConf).childList=true
-      \(`mutationConf).subtree=true
-      mutationConf))
+(define mutationConfig
+  (let ((mutationConf \(new Object())))
+  \(`mutationConf).childList=true
+\(`mutationConf).subtree=true
+mutationConf))
 
-  (define (mutationCallback e mut)
-    \console.log("callback")
-    \(`e).forEach(`(lambda (mutationRecord . foo)
-                      \(`mutationRecord).removedNodes.forEach(`remove-reactive-node-on-dom))))
+(define (mutationCallback e mut)
+  \(`e).forEach(`(lambda (mutationRecord . foo)
+                   \(`mutationRecord).removedNodes.forEach(`remove-reactive-node-on-dom))))
 
-  (define mutationObject \(new MutationObserver(`mutationCallback)))
-  
-  \(`mutationObject).observe(`root-node , `mutationConfig)
+(define mutationObject \(new MutationObserver(`mutationCallback)))
 
-  (if debug 
-    \(`root-node).appendChild(`(<div>
-                                 style: "position:fixed; top:0; right:0; background-color: #ffff005e; color: #000000a6;"
-                                 (<p>
-                                   "not yet available"
-                                   ;"Reactive block: " reactive-block-counter (<br>)
-                                   ;"Reactive variables: " reactive-var-counter
-                                   ))))
+\(`mutationObject).observe(`root-node , `mutationConfig)
 
-  (for-each
-    (lambda (dom-elem . foo)
-      \(`root-node).appendChild(`dom-elem))
-    dom-elems)
+(if debug 
+  \(`root-node).appendChild(`(<div>
+                               style: "position:fixed; top:0; right:0; background-color: #ffff005e; color: #000000a6;"
+                               (<p>
+                                 ;"not yet available"
+                                 "Reactive nodes: " $$reactive-debug-count 
+                                 ;"Reactive variables: " reactive-var-counter
+                                 ))))
+
+(for-each
+  (lambda (dom-elem . foo)
+    \(`root-node).appendChild(`dom-elem))
+dom-elems)
 )
 
 
@@ -148,8 +171,8 @@
 
 
 #;(define (register-observer-on-parent elem)
-  #;\console.log("registering parent ", `elem)
-  \(`mutationObject).observe(`elem, `mutationConfigs))
+#;\console.log("registering parent ", `elem)
+\(`mutationObject).observe(`elem, `mutationConfigs))
 
 (define (register-reactive-node-on-dom domelem node)
 
@@ -169,6 +192,8 @@
   (cond
    ((or (string? elem) (number? elem))
     \document.createTextNode(`elem))
+   ((list? elem)
+    (<div> elem))
    (else elem)))
 
 
@@ -202,12 +227,12 @@
   (define (func . raw-args)
     (define args (parse-args raw-args))
     (define tag (createElement name))
-  
+
     (for-each
       (lambda (kv)
         (define key (car kv))
         (define value (cdr kv))
-  
+
         (cond 
           ((equal? key $$body-tag)
            (for-each
@@ -232,7 +257,7 @@
           ((on-keyword? key)
            =>
            (lambda (event)
-             \(`elem).addEventListener(`event,
+             \(`tag).addEventListener(`event,
                                        `(lambda (e)
                                           (write
                                             (lambda () (value e))
@@ -260,9 +285,6 @@
     tag)
 
   func)
-
-(define <p> (gen-tag "p"))
-(define <div> (gen-tag "div"))
 
 
 

@@ -31,11 +31,17 @@
               link-keyword?
               toDomElement
               parse-args
-              remove-reactive-block-on-dom
-              register-reactive-block-on-dom
-              register-observer-on-parent
+              remove-reactive-node-on-dom
+              register-reactive-node-on-dom
               event-queue
               listen-events
+              gen-tag
+              $$body-tag
+
+              reactive-socket
+              reactive-socket-send
+              reactive-socket-receive
+              reactive-socket-open
 
               ))
 

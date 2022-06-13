@@ -10,13 +10,21 @@
 (define-macro (reactive . args)
   (let ((block-name (gensym))
         (value      (gensym)))
-    `(let* ((,block-name (reactive-block (lambda () ,@args) '()))
+    `(let* ((,block-name (reactive-block (lambda () ,@args)))
             (,value      ($$retrieve-value ,block-name)))
        (reactive-node-value-set! ,block-name ,value)
        ,block-name)))
 
 (define-macro (reactive-ref reactive-var)
   `($$reactive-ref ($$reactive-scope) ,reactive-var))
+
+
+(define-macro (no-reactive-ref reactive-var)
+  `($$reactive-ref #f ,reactive-var))
+
+(define-macro (no-reactive . args)
+  `(parameterize (($$reactive-scope #f))
+    ,@args))
 
 (##namespace
  ("reactive#"
@@ -28,6 +36,10 @@
   $$add-dependencie
   $$reactive-ref
   $$retrieve-value
+  $$reactive-debug-count
+
+  no-reactive
+  no-reactive-ref
 
   reactive?
   reactive-block?
