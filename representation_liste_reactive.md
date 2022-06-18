@@ -4,7 +4,7 @@ Dans cet article, j'essaie de trouvé la forme canonique des listes réactive. J
 
 ## Représentation "style lazy"
 ### Type
-`rlist = (val . (rvar rlist)) | '()`
+`RLIST := (val . (rvar RLIST)) | '()`
 ### Exemples:
 ```
 (rlist 1 2 3) => (1 . (rvar (2 . rvar (3 . (rvar '())))))
@@ -46,7 +46,7 @@ Il n'y a aucun moyen de savoir que `x` a changé avec un (reactive ...). Cela ca
 
 ## Représentation "style variable réactive"
 ### Type
-`rlist = (rvar (val . rlist)) | (rvar '())`
+`RLIST := (rvar (val . RLIST)) | (rvar '())`
 
 ## Exemples:
 ```
