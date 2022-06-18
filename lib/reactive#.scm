@@ -37,9 +37,6 @@
   $$retrieve-value
   $$reactive-debug-count
 
-  no-reactive
-  no-reactive-ref
-
   reactive?
   reactive-block?
 
@@ -59,6 +56,16 @@
   reactive-delete!
 
   reactive-scope-create
+
+  rlist
+  reactive-list
+  rset-cdr!
+  rset-car!
+  rcar
+  rcdr
+  rcons
+  rlist-end
+  $$rlist-end
 
   ))
 

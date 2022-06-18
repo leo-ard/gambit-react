@@ -90,7 +90,7 @@
         (receive (reactive-var 0 (lambda (x y) #f))))
     (define (onopen e)
       (reactive
-        initialize: #f
+        ;initialize: #f
         (let ((object (object->u8vector (reactive-ref send))))
           \(`ws).send(`object)))
       (reactive-update! status 'open))
@@ -102,6 +102,26 @@
     \(`ws).onopen=`onopen
     \(`ws).onclose=`(lambda (e) (reactive-update! status 'closed))
     (make-reactive-socket status send receive)))
+
+
+;; could be replaced by list directly
+;;(define-type reactive-list lst)
+;;
+;;(define (rlist #!optional (lst '()))
+;;  (if (list? lst)
+;;    (make-reactive-list lst)
+;;    (error "Cannot create a reactive list")))
+;;
+;;(define (rcar rlist)
+;;  (car (reactive-list-lst rlist)))
+;;
+;;(define (rcdr rlist)
+;;  (make-reactive-list (reactive-ref (cdr (reactive-list-lst rlist)))))
+;;
+;;(define (rcons elem rlist)
+;;  (make-reactive-list ))
+
+
 
 
 (define (create-app #!key (debug #f) (root "#app") . dom-elems)
@@ -244,7 +264,7 @@ dom-elems)
                     (register-reactive-node-on-dom
                       tag
                       (reactive
-                        initialize: #f
+                        ;initialize: #f
                         (let ((new (toDomElement (reactive-ref elem)))) 
                           \(`tag).replaceChild(`new ,`old)
                           (set! old new)

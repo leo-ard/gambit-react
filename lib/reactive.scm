@@ -89,3 +89,121 @@
 
 ;; global scope
 (define $$reactive-scope (make-parameter #f))
+
+
+;; ======= REACTIVE CONSTRUCTIONS ========
+
+
+;; constuctions with type:
+;; rlist = (cons (reactive-var val) (reactive-var rlist)) | '()
+
+(begin
+
+  (define (list->reactive-list lst)
+    (if (pair? lst)
+      (let* ((elem (car lst))
+             (rest (cdr lst)))
+        (rcons elem (list->reactive-list rest)))
+      '()))
+  
+  (define (reactive-list? lst)
+    (if (pair? lst)
+      (and (reactive? (cdr lst)) (reactive? (car lst)) (reactive-list? (rcdr lst)))
+      #t))
+  
+  (define (rset-cdr! lst val)
+    (if (not (reactive? (cdr lst)))
+      (error "cdr of list is not reactive" lst))
+    (reactive-update! (cdr lst) val))
+  
+  (define (rset-car! lst val)
+    (if (not (reactive? (car lst)))
+      (error "car of list is not reactive" lst))
+    (reactive-update! (car lst) val))
+  
+  (define (rcdr lst)
+    (if (not (reactive? (cdr lst)))
+      (error "cdr of list is not reactive" lst))
+    (reactive-ref (cdr lst)))
+  
+  (define (rcar lst)
+    (if (not (reactive? (car lst)))
+      (error "car of list is not reactive" lst))
+    (reactive-ref (car lst)))
+  
+  (define (rcons elem lst)
+    (cons (reactive-var elem) (reactive-var lst)))
+
+  ;(define (rtail lst) 
+  ;  )
+  ;
+  ;(define (rappend! lst1 lst2)
+  ;  )
+  
+  (define (rlist . args)
+    (list->reactive-list args))
+  
+  (define (rpair? lst)
+    (and (pair? lst)
+         (reactive? (car lst))
+         (reactive? (cdr lst))))
+  
+  ;; return the reactive variable at that place
+  (define ($$rlist-end lst)
+    (if (rpair? lst)
+      (if (eq? (rcdr lst) '()) 
+        ($$rlist-end (cdr lst))
+        (cdr lst))
+
+      (error "Cannot find end of non reactive-list")))
+  
+  (define (rlist-end lst)
+    (define end (reactive-var '()))
+    (define end-pointer (reactive-var ($$rlist-end lst)))
+  
+    (reactive
+      (let ((end-of-lst ($$rlist-end (reactive-ref (no-reactive-ref end-pointer)))))
+        #;(reactive-ref end-of-lst)
+        (reactive-update! end-pointer end-of-lst)
+        ;(reactive-update! end-of-lst (reactive-ref end))
+        #;(reactive-node-value-set! end '())))
+  
+    (reactive 
+      (reactive-update! (no-reactive-ref end-pointer) (reactive-ref end)))
+  
+    (reactive
+      (reactive-update! end (no-reactive-ref (reactive-ref end-pointer))))
+    
+    end)
+  )
+
+
+;; constuction with type 
+;; rlist = (reactive-var (cons (reactive-var val) rlist)) | (reactive-var '())
+#;(begin
+
+  (define (list->reactive-list lst)
+    (if (pair? lst)
+      (let* ((elem (car lst))
+             (rest (cdr lst)))
+        (rcons elem (list->reactive-list rest)))
+      (reactive-var '())))
+
+  (define (rcons elem lst)
+    (reactive-var (cons elem lst)))
+
+  (define (rlist . args)
+    (list->reactive-list args))
+
+  (define (rcar lst)
+    (reactive-ref (car (reactive-ref lst))))
+
+  (define (rcdr lst)
+    (reactive-ref (cdr (reactive-ref lst))))
+
+  )
+
+
+
+
+
