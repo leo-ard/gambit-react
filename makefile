@@ -45,6 +45,8 @@ test: .PHONY
 		gsi ./lib/ $$testfile; \
 	done
 
+websocket-server:
+	cd misc/websocket && $(MAKE) run
 
 #serve-update: app.js .venv
 #	. .venv/bin/activate && python3 update-server.py
