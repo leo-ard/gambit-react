@@ -59,13 +59,15 @@
 
   rlist
   reactive-list
-  rset-cdr!
-  rset-car!
+  rcdr-update!
+  rcar-update!
   rcar
   rcdr
   rcons
   rlist-end
   $$rlist-end
+  rappend!
+  rtail
 
   ))
 

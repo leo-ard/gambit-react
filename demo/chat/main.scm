@@ -24,7 +24,7 @@
 
 (##declare (extended-bindings) (standard-bindings) (block))
 
-;; ne fonctionne pas :(
+;; ne fonctionne pas :(  
 (define-type message
   owner
   content)

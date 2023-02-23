@@ -24,10 +24,12 @@
 
 (##declare (extended-bindings) (standard-bindings) (block))
 
+(define x (reactive 42))
+
 (create-app
   debug: #t
   (<div>
-    (<p> "this is a real test")))
+    (<p> x)))
 
 \console.log("heyyyyyy")
 

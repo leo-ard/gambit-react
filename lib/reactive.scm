@@ -41,6 +41,14 @@
 
   (make-reactive-node #f equal? thunk dependencies #f))
 
+(define (reactive-update! node #!optional (new-value ($$retrieve-value node)))
+  (let* ((old-value (reactive-node-value node))
+         (eq-func   (reactive-node-equal? node)))
+    (if (not (eq-func new-value old-value))
+      (begin
+        (reactive-node-value-set! node new-value)
+        ($$reactive-update-dependencies node)))))
+
 (define ($$reactive-update-dependencies node)
   (let ((dependencies (reactive-node-dependencies node)))
     (reactive-node-dependencies-set! node (make-table))
@@ -69,14 +77,6 @@
 
   (reactive-node-value node))
 
-(define (reactive-update! node #!optional (new-value ($$retrieve-value node)))
-  (let* ((old-value (reactive-node-value node))
-         (eq-func   (reactive-node-equal? node)))
-    (if (not (eq-func new-value old-value))
-      (begin
-        (reactive-node-value-set! node new-value)
-        ($$reactive-update-dependencies node)))))
-
 (define (reactive-delete! node)
   (if debug
     (reactive-update! $$reactive-debug-count (- (reactive-node-value $$reactive-debug-count) 1)))
@@ -97,7 +97,7 @@
 ;; constuctions with type:
 ;; rlist = (cons (reactive-var val) (reactive-var rlist)) | '()
 
-(begin
+#;(begin
 
   (define (list->reactive-list lst)
     (if (pair? lst)
@@ -180,7 +180,7 @@
 
 ;; constuction with type 
 ;; rlist = (reactive-var (cons (reactive-var val) rlist)) | (reactive-var '())
-#;(begin
+(begin
 
   (define (list->reactive-list lst)
     (if (pair? lst)
@@ -196,10 +196,29 @@
     (list->reactive-list args))
 
   (define (rcar lst)
-    (reactive-ref (car (reactive-ref lst))))
+    (car (reactive-ref lst)))
 
   (define (rcdr lst)
-    (reactive-ref (cdr (reactive-ref lst))))
+    (cdr (reactive-ref lst)))
+
+  (define (rcar-update! lst val)
+    (reactive-update! lst (cons val (rcdr lst))))
+
+  (define (rcdr-update! lst val)
+    (reactive-update! lst (cons (rcar lst) val)))
+  
+
+
+  (define (rtail lst)
+    (let ((lst-elem (reactive-ref lst)))
+      (if (eq? lst-elem '())
+        lst
+        (rtail (cdr lst-elem)))))
+
+  (define (rappend! lst1 lst2)
+    (let ((lst1-tail (rtail lst1)))
+      (reactive
+        (reactive-update! lst1-tail (reactive-ref lst2)))))
 
   )
 
