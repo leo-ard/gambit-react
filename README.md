@@ -8,6 +8,8 @@ abstraction for manipulating reactive variables. It also offers an easy way to
 insert those variables into HTML elements. This enables you to write web pages
 in an almost declarative style!
 
+All of this, written in Scheme, **under 1000LOC (reactivity + HTML intergration)**.
+
 ## An overview of reactivity
 
 The library `lib/reactive` lets us create reactive variables. First, let's look
@@ -44,8 +46,8 @@ This program displays `"!!! y = 44"` and `"!!! y = 45"` when we modify the value
 A reactive variable is like a box containing a value that can be accessed with
 `reactive-ref` and modified with `reactive-set!`. In the second example, the
 value of `y` is reactively set according to `x+1`, meaning that when `x`
-changes, we update `y`. The second reactive statement showcases a little bit
-the inner working of the reactive statement by displaying the value of `y` when
+changes, we update `y`. The second reactive statement showcases a little of
+the inner workings of the reactive statement by displaying the value of `y` when
 `x` changes. In other words, the reactive block `(reactive (println "!!! x = "
 (reactive-ref x)))` *binds* the display of `x` to its value.
 
@@ -63,7 +65,7 @@ This simply creates the following tags:
 
 ```html
 <div>
-	<p>I love Gambit!</p>
+    <p>I love Gambit!</p>
 </div>
 ```
 
@@ -78,20 +80,20 @@ If you want to include attributes in the HTML syntax, simply use the attribute n
 ```scheme
 (createApp
    (<div>
-	 style: "color: red;"
-	 class: "myclass"
-	 (<p>
-	   data-my-custon-attribute: "my attribute value"
-	   "I love Gambit !")))
+     style: "color: red;"
+     class: "myclass"
+     (<p>
+       data-my-custon-attribute: "my attribute value"
+       "I love Gambit !")))
 ```
 
 This would create the following HTML structure:
 
 ```html
 <div style="color: red;" class="myclass">
-  	<p data-my-custom-attribute="my attribute value">
-	  I love Gambit !
-	</p>
+      <p data-my-custom-attribute="my attribute value">
+      I love Gambit !
+    </p>
 </div>
 ```
 
@@ -102,9 +104,9 @@ We can also easily add event handlers. For example, if we want to do something w
 ```scheme
 (createApp
    (<div>
-	(<button>
-	  on:click: (lambda (e) \console.log("button clicked !"))
-	  "My button")))
+    (<button>
+      on:click: (lambda (e) \console.log("button clicked !"))
+      "My button")))
 ```
 
 This creates a button that, when clicked, prints `"button clicked !"` to the console.
@@ -133,8 +135,8 @@ Here, we have a button containing the text `"Number of clicks : 0"`. Clicking th
  (let ((my-var (reactive-var 0)))
   (<div>
    (<button>
-	on:click: (lambda (e) (reactive-set! (+ 1 (reactive-ref x))))
-	"Number of clicks : " my-var)))
+    on:click: (lambda (e) (reactive-set! (+ 1 (reactive-ref x))))
+    "Number of clicks : " my-var)))
 
 )
 ```
@@ -143,23 +145,31 @@ This version now works! The button updates the number of clicks accordingly. We 
 
 ## I want more demos!
 
-If you want to see demos, check out the [demos](../demo)!
+If you want to see demos, check out the [demos](../demo)! There is a demo using
+a reactive web socket abstraction (the chat) and more examples on how to use
+the library. To run them, read below.
+
+## How does this work?
+
+You can check the implementation, under 1000 LOC, fully in scheme in the folder [lib](../lib).
 
 ## Run demos
 
-To run a demo, simply use:
+To run a demo, [install gambit](https://gambitscheme.org), then use:
 
 ```sh
 make demo/[my demo]
 ```
 
-You can also run demos in "update mode", which automatically reloads the page when the dependencies used to generate the demo change. To do so, use:
+You can also run demos in "update mode", which automatically reloads the page
+when the dependencies used to generate the demo change. Note that this requires
+`python3` to be installed and available inside your `PATH`. To do so, use:
 
 ```sh
 make SERVE=update demo/[my demo]
 ```
 
-To run the chat demo, you must also start the socket server (requiring node.js):
+To run the chat demo, you must also start the socket server (requiring `node.js`):
 
 ```sh
 make websocket-server
@@ -167,3 +177,10 @@ make demo/chat
 ```
 
 This setup has only been tested in Unix environments.
+
+# Questions, comments, suggestions, problems?
+
+If you have questions, comments, suggestions or problems, write an issue on
+GitHub or [contact me](https://oestoleary.com). Note that this library is more
+of an experiment of combining reactivity and Scheme and should probably not be
+used in production.
