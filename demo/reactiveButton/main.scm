@@ -28,7 +28,7 @@
  debug: #t
  (let ((my-var (reactive-var 0)))
    (<div>
-     (<button> 
+     (<button>
        on:click: (lambda (e) (reactive-update! my-var (+ 1 (reactive-ref my-var))))
        "Number of clicks : " my-var))))
 

@@ -29,8 +29,9 @@
 (create-app
   debug: #t
   (<div>
+    "Welcome to GambitReact. If everything goes well, you should see 42 under this line: "
     (<p> x)))
 
-\console.log("heyyyyyy")
+\console.log("Page loaded!")
 
 (listen-events)

@@ -6,7 +6,13 @@
 # GSC = $(GAMBITDIR)/gsc/gsc -:~~bin=$(srcdirpfx)$(GAMBITDIR)/bin,~~lib=$(srcdirpfx)$(GAMBITDIR)/lib,~~include=$(srcdirpfx)$(GAMBITDIR)/include
 
 GSC=gsc
-SERVE=normal
+SERVE=nopython
+
+ifeq ($(shell uname -s),Darwin)
+OPEN_BROWSER = open
+else
+OPEN_BROWSER = xdg-open
+endif
 
 # serve: app.js
 # 	@echo "===== Listening on https://localhost:4443"
@@ -20,6 +26,9 @@ serve/demo/%: demo/%
 
 demo/%: lib/VM.js demo/%/* .PHONY
 	cd $@ && $(MAKE) GSC='$(GSC)' VM='$(PWD)/lib/VM.js'
+ifeq ($(SERVE), nopython)
+	cd $@ && $(OPEN_BROWSER) index.html
+endif
 ifeq ($(SERVE), normal)
 	cd $@ && python2 $(PWD)/misc/https-server.py $(PWD)/misc/https-server-certificate.pem
 endif
@@ -36,7 +45,7 @@ endif
 
 .venv-server:
 	@echo "generating virtualenv in .venv-server for update-server"
-	python3 -m virtualenv .venv-server
+	python3 -m venv .venv-server
 	. .venv-server/bin/activate && pip install livereload
 
 test: .PHONY

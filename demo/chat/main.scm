@@ -24,7 +24,7 @@
 
 (##declare (extended-bindings) (standard-bindings) (block))
 
-;; ne fonctionne pas :(  
+;; ne fonctionne pas :(
 (define-type message
   owner
   content)
@@ -38,7 +38,7 @@
 
     (<div>
       (<label> for: "input" label)
-      (<input> 
+      (<input>
         id: "input"
         placeholder: placeholder
         on:input: (link content))
@@ -59,6 +59,10 @@
     (reactive (reactive-update! all-messages (append ($$reactive-ref #f all-messages) (list (reactive-ref socket-receive)))))
 
     (<div>
+      (<p> "To use this demo, you must first start the socket
+           server using `make websocket-server` in another
+           terminal window (requires node.js)." )
+      (<p> "Then, you can create a name below, and then send this link to someone else (or yourself) to chat! Note that the chat does not have any history of previously send messages.")
       (reactive
         (cond
           ((not (reactive-ref name))
@@ -66,19 +70,19 @@
           ((eq? (reactive-ref socket-status) 'connecting)
            (<p> "connecting to socket..."))
           ((eq? (reactive-ref socket-status) 'closed)
-           (<p> "The connection to the socket was closed, please refresh the page or launch the server"))
+           (<p> "The connection to the socket was closed, please refresh the page or launch the websocket server as explain above."))
           (else
-            (<div> 
+            (<div>
               (reactive
-                (map 
-                  (lambda (message) 
+                (map
+                  (lambda (message)
                     (if (not (number? message))
-                      (<p> 
-                        (<b> (car message)) 
+                      (<p>
+                        (<b> (car message))
                         " : "
                         (cadr message))
                       (<div>)))
-                  (reactive-ref all-messages)))   
+                  (reactive-ref all-messages)))
               (<reactive-input> "" "Type a message to send" (lambda (message) (reactive-update! socket-send (list (reactive-ref name) message)))))))))))
 
 (listen-events)

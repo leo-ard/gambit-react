@@ -41,25 +41,23 @@
 (define (random-boolean)
   (eqv? (random-integer 2) 0))
 
-(define (link reactive-var) (lambda (e) (reactive-set! reactive-var \(`e).srcElement.value)))
+(define (link reactive-var) (lambda (e) (reactive-update! reactive-var \(`e).srcElement.value)))
 (define faits (reactive-var #f))
 (define faits-loaded (reactive-var #f))
 (define (faits-contains id)
   (fold (lambda (fait lst) (or (equal? id \(`fait)['@id']) lst)) #f (vector->list (reactive-ref faits))))
 
 (define (faits-add! vector-to-add)
-  \console.log(`vector-to-add)
   (let ((unique (fold (lambda (fact lst)
-                        \console.log(`fact)
-                        \console.log(`lst)
                         (if (faits-contains \(`fact)['@id']) lst (cons fact lst)))
                       '()
                       (vector->list vector-to-add))))
-    (reactive-set! faits (vector-append (reactive-ref faits) (list->vector unique))))
+    (reactive-update! faits (vector-append (reactive-ref faits) (list->vector unique))))
     )
 
 (define page (reactive-var "menu"))
 (define all-pages '("menu" "games" "database"))
+
 
 
 (define (display-loading-table)
@@ -72,20 +70,23 @@
                           (<th> "Loading...")))))
 
 (define (display-table facts)
+
+  \console.log(`facts)
   (<table> class: "table"
            (<thead> (<tr> (<th> "start")
                           (<th> "Relation")
                           (<th> "End")))
+
    (<tbody>
-    body: (map (lambda (e) (<tr> (<th> \`e['start']['label'])
-                                 (<th> \`e['rel']['label'])
-                                 (<th> \`e['end']['label'])))
-               (vector->list \`facts)))))
+    (map (lambda (e) (<tr> (<th> \`e['start']['label'])
+                           (<th> \`e['rel']['label'])
+                           (<th> \`e['end']['label'])))
+         (vector->list \`facts)))))
 
 (define (<menu-button> name menu)
   (<button> type: "button"
             class: "btn btn-primary"
-            on:click: (lambda (e) (reactive-set! page menu))
+            on:click: (lambda (e) (reactive-update! page menu))
             name))
 
 (define (display-menu)
@@ -105,7 +106,7 @@
   (define jeu-en-cours (reactive-var 'oui-non))
   (define jeux (make-table))
   (define (setup-button sym)
-    (lambda (e) (reactive-set! jeu-en-cours sym)))
+    (lambda (e) (reactive-update! jeu-en-cours sym)))
 
   (table-set! jeux 'oui-non jeu-oui-non)
   (table-set! jeux 'consigne jeu-consigne)
@@ -119,15 +120,15 @@
      (reactive
       (<ul>
        class: "col-md-auto list-group"
-       body: (map (lambda (sym)
-                    (<li> (string-append "Jeu " (symbol->string sym))
-                          class: (string-append "list-group-item " (if (eq? (reactive-ref jeu-en-cours) sym)
-                                                                   "active"
-                                                                   ""))
-                              on:click: (setup-button sym))
+       (map (lambda (sym)
+              (<li> (string-append "Jeu " (symbol->string sym))
+                    class: (string-append "list-group-item " (if (eq? (reactive-ref jeu-en-cours) sym)
+                                                               "active"
+                                                               ""))
+                    on:click: (setup-button sym))
 
-                    )
-                  '(oui-non consigne qui-suis-je))))
+              )
+            '(oui-non consigne qui-suis-je))))
 
      (reactive
       (<div>
@@ -162,6 +163,7 @@
               (vector->list facts))
     (table->list table)))
 
+
 (define (<nav-bar>)
   (<div>
    (reactive
@@ -171,26 +173,26 @@
      (<div>
       class: "pull-left mr-auto d-flex align-items-center"
 
-      body: (cons
-             (<span>
-              style: "color: #292929; font-family:Calibri, sans-serif;"
-              class: "h1 my-0 mx-2"
-              (<img>
-               style: "height:60px;"
-               src: "./logo-simple.png"
-               class: "mx-2")
-              "ConceptNet Client"
+      (cons
+        (<span>
+          style: "color: #292929; font-family:Calibri, sans-serif;"
+          class: "h1 my-0 mx-2"
+          (<img>
+            style: "height:60px;"
+            src: "./logo-simple.png"
+            class: "mx-2")
+          "ConceptNet Client"
 
-              )
-             (map
-             (lambda (name)
-               (<button>
-                class: (string-append "btn mx-2 my-auto " (if (equal? (reactive-ref page) name) "btn-light" "text-dark"))
-                on:click: (lambda (e) (reactive-set! page name))
-                name))
-             all-pages
+          )
+        (map
+          (lambda (name)
+            (<button>
+              class: (string-append "btn mx-2 my-auto " (if (equal? (reactive-ref page) name) "btn-light" "text-dark"))
+              on:click: (lambda (e) (reactive-update! page name))
+              name))
+          all-pages
 
-             ))
+          ))
       )
      (<div>
       class: "pull-right"
@@ -288,26 +290,26 @@
   (define statement #f)
   (define (timeout-action)
     (let ((newTime (- (reactive-ref timer) 1)))
-      (reactive-set! timer newTime)
+      (reactive-update! timer newTime)
       (if (eq? (reactive-ref state) 'waiting)
           (if (> newTime 0)
               (set! timer-ref (setup-timer timeout-action 1000))
-              (reactive-set! state 'no-time)))))
+              (reactive-update! state 'no-time)))))
 
   (define (input-response res)
     (lambda (e)
       (if (eq? res valid)
-          (reactive-set! state 'win)
-          (reactive-set! state 'lose))))
+          (reactive-update! state 'win)
+          (reactive-update! state 'lose))))
 
   (define (start _)
     (if timer-ref
         \clearTimeout(`timer-ref))
-    (reactive-set! timer 60)
+    (reactive-update! timer 60)
     (set! valid (random-boolean))
     (set! statement (if valid (get-random-fait (reactive-ref faits)) (get-swaped-random-fait (reactive-ref faits))))
     (set! timer-ref (setup-timer timeout-action 1000))
-    (reactive-set! state 'waiting))
+    (reactive-update! state 'waiting))
 
   (<div>
    (reactive
@@ -354,15 +356,15 @@
      (reactive
       (let ((points 0))
         (<tbody>
-         body: (map (lambda (x) (if (member x h-lst)
-                                    (begin
-                                      (set! points (+ 1 points))
-                                      (<tr> (<th> style: "font-weigth:bold;" (string-append x " (1 point !)")))
-                                      )
-                                    (<tr> (<th> x)))) (reactive-ref lst))
-         (if show-points
-             (<p> "Et vous avez " points " points")
-             (<div>)))))))
+          (map (lambda (x) (if (member x h-lst)
+                             (begin
+                               (set! points (+ 1 points))
+                               (<tr> (<th> style: "font-weigth:bold;" (string-append x " (1 point !)")))
+                               )
+                             (<tr> (<th> x)))) (reactive-ref lst))
+          (if show-points
+            (<p> "Et vous avez " points " points")
+            (<div>)))))))
 
 
 (define (<timer> timer)
@@ -404,30 +406,30 @@
   (define solution #f)
   (define (add-word-list! word)
     (if (not (member word (reactive-ref word-list)))
-        (reactive-set! word-list (cons word (reactive-ref word-list)))
+        (reactive-update! word-list (cons word (reactive-ref word-list)))
 
         )
     )
 
   (define (timeout-action)
     (let ((newTime (- (reactive-ref timer) 1)))
-      (reactive-set! timer newTime)
+      (reactive-update! timer newTime)
       (if (eq? (reactive-ref state) 'waiting)
           (if (> newTime 0)
               (setup-timer timeout-action 1000)
               (begin
-                (reactive-set! state 'score)
+                (reactive-update! state 'score)
                 )
               ))))
 
   (define (submit e)
     (add-word-list! (reactive-ref word-input))
-    (reactive-set! word-input ""))
+    (reactive-update! word-input ""))
 
   (define (start _)
-    (reactive-set! word-input "")
-    (reactive-set! word-list '())
-    (reactive-set! timer 60)
+    (reactive-update! word-input "")
+    (reactive-update! word-list '())
+    (reactive-update! timer 60)
     (set! consigne (get-random-fait* (reactive-ref faits)))
     (set! random-hidden 2)
     (setup-timer timeout-action 1000)
@@ -437,7 +439,7 @@
       \foreign(query_concept(`g).then(`(lambda (e) (faits-add! \(`e)['edges']) (set! solution e))))
       )
     \console.log("set setate")
-    (reactive-set! state 'waiting)
+    (reactive-update! state 'waiting)
     \console.log("heyy"))
 
   (define (display-words)
@@ -453,7 +455,7 @@
        (list-><table> "word" word-list (map (lambda (x) \(`x)['end']['label']) (vector->list \(`solution)['edges'])) #t)
        (<h3> "Good answers :")
        (<div>
-        body: (map (lambda (e) (<span> \(`e)['end']['label'] ", ")) (vector->list \(`solution)['edges'])))
+        (map (lambda (e) (<span> \(`e)['end']['label'] ", ")) (vector->list \(`solution)['edges'])))
        )
 
 
@@ -536,14 +538,14 @@
   (define bad (reactive-var #f))
   (define (timeout-action)
     (let ((newTime (- (reactive-ref timer) 1)))
-      (reactive-set! timer newTime)
-      (reactive-set! nb-show (+ 1 (quotient (- maxtime newTime) 20)))
+      (reactive-update! timer newTime)
+      (reactive-update! nb-show (+ 1 (quotient (- maxtime newTime) 20)))
 
       (if (eq? (reactive-ref state) 'waiting)
           (if (> newTime 0)
               (setup-timer timeout-action 1000)
               (begin
-                (reactive-set! state 'timeout))))))
+                (reactive-update! state 'timeout))))))
 
   (define (hide-hint hint)
     (map (lambda (fait)
@@ -559,32 +561,32 @@
 
   (define (start _)
     (set! solution (get-random-concept (reactive-ref faits)))
-    (reactive-set! state 'loading)
+    (reactive-update! state 'loading)
     (let ((g \(new Object())))
       \(`g)['node']=(`(car solution))
       \(`g)['limit']=1000
       \query_concept(`g).then(remove_names).then(`(lambda (e) (set! hints (map fait->hint-vector (list-take (vector->list e) 5 '())))))
       )
     (set! maxtime (+ (* (length hints) 20) 20))
-    (reactive-set! timer maxtime)
-    (reactive-set! nb-show 1)
+    (reactive-update! timer maxtime)
+    (reactive-update! nb-show 1)
     (setup-timer timeout-action 1000)
-    (reactive-set! state 'waiting)
+    (reactive-update! state 'waiting)
     \console.log(`solution))
 
   (define (submit e)
     (if (equal? (string-upcase (reactive-ref word-input)) (string-upcase (cdr solution)))
-        (reactive-set! state 'win)
+        (reactive-update! state 'win)
         (begin
-          (reactive-set! bad #t)
-          (setup-timer (lambda () (reactive-set! bad #f)) 500)))
+          (reactive-update! bad #t)
+          (setup-timer (lambda () (reactive-update! bad #f)) 500)))
     )
 
   (define (get-hints)
     (<div>
      (reactive
       (<div>
-       body: (map <fait> (list-take hints (reactive-ref nb-show) '())))
+       (map <fait> (list-take hints (reactive-ref nb-show) '())))
       )
      ))
   (define (calculate-score)
@@ -684,36 +686,36 @@
         (if \(`e)['view']!==undefined
             (begin
               (if \(`e)['view']['nextPage']!==undefined
-                  (reactive-set! next-page (lambda (_)
-                                             (reactive-set! database-result 'loading)
+                  (reactive-update! next-page (lambda (_)
+                                             (reactive-update! database-result 'loading)
                                              \foreign((`e).nextPage().then(`f))
                                              ))
-                  (reactive-set! next-page #f))
+                  (reactive-update! next-page #f))
               (if \(`e)['view']['previousPage']!==undefined
-                  (reactive-set! prev-page (lambda (_)
-                                             (reactive-set! database-result 'loading)
+                  (reactive-update! prev-page (lambda (_)
+                                             (reactive-update! database-result 'loading)
                                              \foreign((`e).previousPage().then(`f))
                                              ))
-                  (reactive-set! prev-page #f))
+                  (reactive-update! prev-page #f))
               (if \(`e)['view']['firstPage']!==undefined
-                  (reactive-set! first-page (lambda (_)
-                                              (reactive-set! database-result 'loading)
+                  (reactive-update! first-page (lambda (_)
+                                              (reactive-update! database-result 'loading)
                                               \foreign((`e).firstPage().then(`f))
                                               ))
-                  (reactive-set! first-page #f)))
+                  (reactive-update! first-page #f)))
             (begin
-              (reactive-set! first-page #f)
-              (reactive-set! prev-page #f)
-              (reactive-set! next-page #f)))
-        (reactive-set! nbreq
+              (reactive-update! first-page #f)
+              (reactive-update! prev-page #f)
+              (reactive-update! next-page #f)))
+        (reactive-update! nbreq
                        (string-append
                         (number->string (vector-length after-filter))
                         " (fr/en) "
                         (number->string (vector-length before-filter))
                         " (tout) "))
-        (reactive-set! database-result before-filter)))
+        (reactive-update! database-result before-filter)))
 
-    (reactive-set! database-result 'loading)
+    (reactive-update! database-result 'loading)
     (let ((query \Object()))
       (if (not (equal? (reactive-ref node-input) ""))
           \(`query)['node']=`(reactive-ref node-input))
@@ -722,44 +724,44 @@
           \(`query)['rel']=`(reactive-ref relation-input))
       \(`query)['limit']=100
 
-      \foreign(query_concept(`query).then(`f).catch(`(lambda (e) \console.log(`e) (reactive-set! database-result 'error))))))
+      \foreign(query_concept(`query).then(`f).catch(`(lambda (e) \console.log(`e) (reactive-update! database-result 'error))))))
   (define (<pagination>)
     (<nav>
 
      (reactive
       (<ul>
        class: "pagination my-4"
-       body: (append
-              (fold (lambda (name lst)
-                    (if (car name)
-                        (cons (<li> class: "page-item"
-                                    on:click: (car name)
-                                    (<span>
-                                     class: "page-link"
-                                     (cdr name)
-                                     )
-                                    )
-                              lst)
-                        lst))
-                   '()
-                   (list
-                    (cons (reactive-ref next-page) "Next Page")
-                    (cons (reactive-ref first-page) "First Page")
-                    (cons (reactive-ref prev-page) "Previous Page")))
-              (list
-               (<li>
-                class: "my-auto mx-2 input-group-text"
-                (<input>
-                 class: "mx-2"
-                 type: "checkbox"
-                 id: "see-all"
-                 on:input: (lambda (e) (reactive-set! show-all \(`e).srcElement.checked))
-                 (if (reactive-ref show-all)
-                     checked:
-                     "")
-                 ""
-                 )
-                (<label> for: "see-all" "Voir toutes les langues"))))))))
+       (append
+         (fold (lambda (name lst)
+                 (if (car name)
+                   (cons (<li> class: "page-item"
+                               on:click: (car name)
+                               (<span>
+                                 class: "page-link"
+                                 (cdr name)
+                                 )
+                               )
+                         lst)
+                   lst))
+               '()
+               (list
+                 (cons (reactive-ref next-page) "Next Page")
+                 (cons (reactive-ref first-page) "First Page")
+                 (cons (reactive-ref prev-page) "Previous Page")))
+         (list
+           (<li>
+             class: "my-auto mx-2 input-group-text"
+             (<input>
+               class: "mx-2"
+               type: "checkbox"
+               id: "see-all"
+               on:input: (lambda (e) (reactive-update! show-all \(`e).srcElement.checked))
+             (if (reactive-ref show-all)
+               checked:
+               "")
+             ""
+             )
+           (<label> for: "see-all" "Voir toutes les langues"))))))))
 
   (<div> (<h1> "Database searcher")
          (<reactive-input> "Relation: " relation-input "e.g. /r/RelatedTo ")
@@ -784,18 +786,18 @@
                  (display-table \(`(reactive-ref database-result)).filter(filter_names)))))
            (else "")))))
 
-(createApp
- debug: #f
- (<nav-bar>)
- (reactive
+(create-app
+  debug: #f
+  (<nav-bar>)
   (<div>
-   class: "w-75 mx-auto my-4"
-   (cond
-    ((equal? (reactive-ref page) "menu") (display-menu))
-    ((equal? (reactive-ref page) "games") (display-jeu))
-    ((equal? (reactive-ref page) "database") (display-database))
-    (else (<div> "error"))))))
+    class: "w-75 mx-auto my-4"
+    (reactive
+    (cond
+      ((equal? (reactive-ref page) "menu") (display-menu))
+      ((equal? (reactive-ref page) "games") (display-jeu))
+      ((equal? (reactive-ref page) "database") (display-database))
+      (else (<div> "error"))))))
 
-\foreign(get_100_faits().then(`(lambda (e) (reactive-set! faits e) (reactive-set! faits-loaded #t))))
+\foreign(get_100_faits().then(`(lambda (e) (reactive-update! faits e) (reactive-update! faits-loaded #t))))
 
 (listen-events)

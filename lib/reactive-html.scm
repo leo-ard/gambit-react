@@ -97,7 +97,6 @@
 
     ;; translate the data to a scheme object
     \(`ws).onmessage=function(m){m.data.arrayBuffer().then(`(lambda (buf) \console.log("receiving...") (reactive-update! receive (u8vector->object \new Uint8Array(`buf)))));} 
-;\console.log("hey2")
 
     \(`ws).onopen=`onopen
     \(`ws).onclose=`(lambda (e) (reactive-update! status 'closed))
@@ -226,7 +225,6 @@ dom-elems)
   (define default-html
     (<p> "No elements in createApp"))
 
-  \console.log(`args)
   (if (table-ref args debug: #f)
       (table-set! args body:
                   (cons
@@ -295,7 +293,7 @@ dom-elems)
            (register-reactive-node-on-dom
              tag
              (reactive
-               \(`tag).setAttribute(`(keyword->string key), `value))))
+               \(`tag).setAttribute(`(keyword->string key), `(reactive-ref value)))))
           
           (else
             \(`tag).setAttribute(`(keyword->string key), `value))))

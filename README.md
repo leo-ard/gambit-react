@@ -2,17 +2,22 @@
 
 ## What is GambitReact?
 
-GambitReact is a **reactive web app framework** for **Gambit Scheme**, a bit like React, Angular, Next.js, and other frameworks. It provides an intuitive abstraction for manipulating reactive variables. It also offers an easy way to insert those variables into HTML elements. This enables you to write web pages in an almost declarative style!
+GambitReact is a **reactive web app framework** for **Gambit Scheme**, a bit
+like React, Angular, Next.js, and other frameworks. It provides an intuitive
+abstraction for manipulating reactive variables. It also offers an easy way to
+insert those variables into HTML elements. This enables you to write web pages
+in an almost declarative style!
 
 ## An overview of reactivity
 
-The library `lib/reactive` lets us create reactive variables. First, let's look at a few simple examples:
+The library `lib/reactive` lets us create reactive variables. First, let's look
+at a few simple examples:
 
 ### Example 1
 
 ```scheme
 > (define x (reactive-var 0))
-> (reactive-set! x 42)
+> (reactive-update! x 42)
 > (display (reactive-ref x)) ;; displays 42
 42
 ```
@@ -23,19 +28,26 @@ This program simply displays the value `42`, which is stored in the reactive var
 
 ```scheme
 > (define x (reactive-var 42))
-> (reactive (println "!!! x = " (reactive-ref x)))
+> (define y (reactive (+ 1 (reactive-ref x))))
+> (reactive (println "!!! y = " (reactive-ref y)))
 <reactive-block #1 ...>
-> (reactive-set! x 43)
+> (reactive-update! x 44)
 !!! x = 43
-> (reactive-set! x 44)
+> (reactive-update! x 45)
 !!! x = 44
 ```
 
-This program displays `"!!! x = 43"` and `"!!! x = 44"` when we modify the value stored in the reactive variable.
+This program displays `"!!! y = 44"` and `"!!! y = 45"` when we modify the value stored in the reactive variable.
 
 ### What just happened?
 
-A reactive variable is like a box containing a value that can be accessed with `reactive-ref` and modified with `reactive-set!`. In the second example, we can see that the new value of `x` is displayed whenever it changes. This is because the reactive block `(reactive (println "!!! x = " (reactive-ref x)))` *binds* the display of `x` to its value.
+A reactive variable is like a box containing a value that can be accessed with
+`reactive-ref` and modified with `reactive-set!`. In the second example, the
+value of `y` is reactively set according to `x+1`, meaning that when `x`
+changes, we update `y`. The second reactive statement showcases a little bit
+the inner working of the reactive statement by displaying the value of `y` when
+`x` changes. In other words, the reactive block `(reactive (println "!!! x = "
+(reactive-ref x)))` *binds* the display of `x` to its value.
 
 ## HTML-like syntax
 
@@ -147,8 +159,11 @@ You can also run demos in "update mode", which automatically reloads the page wh
 make SERVE=update demo/[my demo]
 ```
 
-For example, to run the chat demo, use:
+To run the chat demo, you must also start the socket server (requiring node.js):
 
 ```sh
-make SERVE=update demo/chat
+make websocket-server
+make demo/chat
 ```
+
+This setup has only been tested in Unix environments.
