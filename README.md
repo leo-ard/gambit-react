@@ -145,13 +145,13 @@ This version now works! The button updates the number of clicks accordingly. We 
 
 ## I want more demos!
 
-If you want to see demos, check out the [demos](../demo)! There is a demo using
+If you want to see demos, check out the [demos](./demo)! There is a demo using
 a reactive web socket abstraction (the chat) and more examples on how to use
 the library. To run them, read below.
 
 ## How does this work?
 
-You can check the implementation, under 1000 LOC, fully in scheme in the folder [lib](../lib).
+You can check the implementation, under 1000 LOC, fully in scheme in the folder [lib](./lib).
 
 ## Run demos
 
